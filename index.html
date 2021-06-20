@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+<title></title>
+
+<!--script src="https://content.jwplatform.com/libraries/wr6i4gal.js"></script> <!-- version 8.4.2 -->
+<script src="https://cdn.jwplayer.com/libraries/IDzF9Zmk.js"></script>
+<!--script src="http://content.jwplatform.com/libraries/d8o9nlO3.js"></script--> <!-- version 7.12 -->
+<!--script src="http://content.jwplatform.com/libraries/DmHakQg1.js"></script--> <!-- Eran user -->
+
+</head>
+
+<body>
+
+<!--br>
+<input id="showAd" type="button" value="Insert Ad" onclick="insertAd();" />
+<br>
+<br-->
+
+<!-- Holds JWPlayer -->
+<div id="ad_player">&nbsp;</div>
+
+
+<script>
+var ipWowza = "localhost";
+var ipAds = "localhost";
+var adURL = "http://"+ipWowza+":8086/insertadmarker";
+var appName = "live";
+var appInstName = "_definst_";
+var streamName = "myStream";
+var waitingForAd = false;
+function jwOnXhrOpen(xhr, url) {
+	if (url.indexOf("m3u8") != -1) {
+		xhr.withCredentials = true; // do send cookies
+	}
+}
+var channelManifestUrl = null;
+
+//getManifestUrl();
+//
+var testUrl = "https://demo.g-mana.net/media/4548d60b-2e40-4be5-917c-18a1d5fc582a/mainManifest.m3u8";
+createPlayer(testUrl);
+// Insert JWPlayer into div
+function createPlayer(manifestUrl){
+	var player =  jwplayer("ad_player");
+	player.setup({
+		playlist: [
+			{
+				sources: [ 
+					{ 
+						//file:"index.m3u8",
+						file: manifestUrl,
+						onXhrOpen: jwOnXhrOpen
+					} 
+				]
+			}
+		],
+		width: 1280,
+		height: 720,
+		autostart: "true",
+		advertising: {
+			client: "vast"
+		}
+	});
+
+	// Detect ID3 tag and make Ad call
+	player.on('meta', function(evt) {
+		if (evt && evt.metadata)
+		{
+			console.log(evt.metadata.TXXX);
+		}
+	});
+  function triggerAd() {
+    console.log("TRIGGER");
+    player.playAd("https://spk-public.s3.amazonaws.com/test/inline-video/non%20linear%20vast.xml");
+  };
+  setTimeout(triggerAd,3000);
+
+}
+
+
+
+</script>
+
+</body>
+</html>
